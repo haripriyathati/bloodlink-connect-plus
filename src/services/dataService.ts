@@ -1,6 +1,7 @@
 
 import { User, BloodRequest, DonationOffer, BloodStock, RequestStatus, UserRole, BloodGroup } from "@/types/models";
 import { toast } from "sonner";
+import { createNotification } from "./notificationService";
 
 // Mock data storage (would be replaced with real API calls in production)
 let users: User[] = [
@@ -158,6 +159,21 @@ export const updateBloodRequestStatus = (requestId: string, status: RequestStatu
       const request = bloodRequests[index];
       updateBloodStock(request.bloodGroup, -request.units);
     }
+
+    // Create notification for patient
+    const patientId = bloodRequests[index].patientId;
+    let notificationMessage = "";
+    let notificationType: 'approval' | 'rejection' | 'info' = 'info';
+    
+    if (status === 'approved') {
+      notificationMessage = `Your blood request has been approved. ${adminResponse || ''}`;
+      notificationType = 'approval';
+    } else if (status === 'rejected') {
+      notificationMessage = `Your blood request has been rejected. ${adminResponse || ''}`;
+      notificationType = 'rejection';
+    }
+    
+    createNotification(patientId, notificationMessage, notificationType);
     
     return bloodRequests[index];
   }
@@ -200,6 +216,21 @@ export const updateDonationOfferStatus = (offerId: string, status: RequestStatus
       const offer = donationOffers[index];
       updateBloodStock(offer.bloodGroup, offer.units);
     }
+    
+    // Create notification for donor
+    const donorId = donationOffers[index].donorId;
+    let notificationMessage = "";
+    let notificationType: 'approval' | 'rejection' | 'info' = 'info';
+    
+    if (status === 'approved') {
+      notificationMessage = `Your donation offer has been approved. ${adminResponse || ''}`;
+      notificationType = 'approval';
+    } else if (status === 'rejected') {
+      notificationMessage = `Your donation offer has been rejected. ${adminResponse || ''}`;
+      notificationType = 'rejection';
+    }
+    
+    createNotification(donorId, notificationMessage, notificationType);
     
     return donationOffers[index];
   }
