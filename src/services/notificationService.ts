@@ -6,7 +6,7 @@ export interface Notification {
   id: string;
   userId: string;
   message: string;
-  type: 'info' | 'donation-reminder' | 'approval' | 'rejection';
+  type: 'info' | 'donation-reminder' | 'approval' | 'rejection' | 'slot-booking';
   createdAt: Date;
   read: boolean;
 }
@@ -17,7 +17,7 @@ let notifications: Notification[] = [];
 export const createNotification = (
   userId: string,
   message: string,
-  type: 'info' | 'donation-reminder' | 'approval' | 'rejection'
+  type: 'info' | 'donation-reminder' | 'approval' | 'rejection' | 'slot-booking'
 ): Notification => {
   const notification: Notification = {
     id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -29,6 +29,25 @@ export const createNotification = (
   };
   
   notifications.push(notification);
+  
+  // Show real-time toast notification if user is active
+  if (type === 'approval' || type === 'rejection' || type === 'slot-booking') {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    if (currentUser.id === userId) {
+      switch (type) {
+        case 'approval':
+          toast.success(message);
+          break;
+        case 'rejection':
+          toast.error(message);
+          break;
+        case 'slot-booking':
+          toast.info(message);
+          break;
+      }
+    }
+  }
+  
   return notification;
 };
 
@@ -88,3 +107,18 @@ export const checkForDonationEligibilityNotification = (user: User | null, donat
     }
   }
 };
+
+// Create notification for multiple users (e.g., all admins)
+export const createNotificationForRole = (
+  role: 'admin' | 'donor' | 'patient',
+  message: string,
+  type: 'info' | 'donation-reminder' | 'approval' | 'rejection' | 'slot-booking'
+): void => {
+  const users = JSON.parse(localStorage.getItem('users') || '[]');
+  const targetUsers = users.filter((u: User) => u.role === role);
+  
+  targetUsers.forEach((user: User) => {
+    createNotification(user.id, message, type);
+  });
+};
+

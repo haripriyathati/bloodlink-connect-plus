@@ -10,12 +10,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { DonationOffer } from "@/types/models";
 import { useState } from "react";
+import { CalendarIcon } from "lucide-react";
 
 interface DonationsTableProps {
   donations: DonationOffer[];
   isAdmin?: boolean;
   onApprove?: (id: string) => void;
   onReject?: (id: string) => void;
+  onBookSlot?: (id: string) => void;
 }
 
 const DonationsTable: React.FC<DonationsTableProps> = ({
@@ -23,6 +25,7 @@ const DonationsTable: React.FC<DonationsTableProps> = ({
   isAdmin = false,
   onApprove,
   onReject,
+  onBookSlot,
 }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -99,6 +102,18 @@ const DonationsTable: React.FC<DonationsTableProps> = ({
                         </Button>
                       </>
                     )}
+                    
+                    {!isAdmin && donation.status === "approved" && !donation.slotBooked && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
+                        onClick={() => onBookSlot && onBookSlot(donation.id)}
+                      >
+                        <CalendarIcon className="mr-1 h-4 w-4" />
+                        Book Slot
+                      </Button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>
@@ -117,6 +132,11 @@ const DonationsTable: React.FC<DonationsTableProps> = ({
                           <p><span className="font-medium">State:</span> {donation.state}</p>
                           {donation.adminResponse && (
                             <p><span className="font-medium">Admin Response:</span> {donation.adminResponse}</p>
+                          )}
+                          {donation.slotBooked && donation.donationSlot && (
+                            <p className="mt-2 text-green-700">
+                              <span className="font-medium">Donation Scheduled:</span> {new Date(donation.donationSlot).toLocaleDateString()} at {new Date(donation.donationSlot).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                            </p>
                           )}
                         </div>
                       </div>

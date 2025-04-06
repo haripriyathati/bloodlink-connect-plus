@@ -195,6 +195,7 @@ export const createDonationOffer = (offerData: Omit<DonationOffer, 'id' | 'statu
     id: `don${donationOffers.length + 1}`,
     status: 'pending',
     offerDate: new Date(),
+    slotBooked: false,
   };
   
   donationOffers.push(newOffer);
@@ -215,22 +216,48 @@ export const updateDonationOfferStatus = (offerId: string, status: RequestStatus
     if (status === 'approved') {
       const offer = donationOffers[index];
       updateBloodStock(offer.bloodGroup, offer.units);
-    }
-    
-    // Create notification for donor
-    const donorId = donationOffers[index].donorId;
-    let notificationMessage = "";
-    let notificationType: 'approval' | 'rejection' | 'info' = 'info';
-    
-    if (status === 'approved') {
-      notificationMessage = `Your donation offer has been approved. ${adminResponse || ''}`;
-      notificationType = 'approval';
+      
+      // Send real-time notification to donor about slot booking
+      const donorId = donationOffers[index].donorId;
+      createNotification(
+        donorId,
+        "Your donation offer has been approved. Please schedule a donation slot at your nearest blood bank.",
+        'approval'
+      );
     } else if (status === 'rejected') {
-      notificationMessage = `Your donation offer has been rejected. ${adminResponse || ''}`;
-      notificationType = 'rejection';
+      // Create notification for donor about rejection
+      const donorId = donationOffers[index].donorId;
+      createNotification(
+        donorId,
+        `Your donation offer has been rejected. ${adminResponse || ''}`,
+        'rejection'
+      );
     }
     
-    createNotification(donorId, notificationMessage, notificationType);
+    return donationOffers[index];
+  }
+  return null;
+};
+
+// New function for booking donation slots
+export const bookDonationSlot = (offerId: string, slotDateTime: Date): DonationOffer | null => {
+  const index = donationOffers.findIndex(offer => offer.id === offerId);
+  if (index !== -1 && donationOffers[index].status === 'approved') {
+    donationOffers[index] = {
+      ...donationOffers[index],
+      slotBooked: true,
+      donationSlot: slotDateTime
+    };
+    
+    // Create notification for admin
+    const adminUsers = users.filter(user => user.role === 'admin');
+    adminUsers.forEach(admin => {
+      createNotification(
+        admin.id,
+        `${donationOffers[index].donorName} has booked a slot for blood donation on ${slotDateTime.toLocaleDateString()} at ${slotDateTime.toLocaleTimeString()}`,
+        'info'
+      );
+    });
     
     return donationOffers[index];
   }

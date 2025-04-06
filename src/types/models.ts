@@ -48,6 +48,8 @@ export interface DonationOffer {
   city: string;
   state: string;
   mobile: string;
+  slotBooked?: boolean;
+  donationSlot?: Date;
 }
 
 export interface BloodStock {

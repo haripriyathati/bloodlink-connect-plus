@@ -30,6 +30,7 @@ import {
   TabsTrigger 
 } from '@/components/ui/tabs';
 import DonorEligibilityQuestionnaire from '@/components/donor/DonorEligibilityQuestionnaire';
+import DonationSlotBooking from '@/components/donor/DonationSlotBooking';
 import { Bell } from 'lucide-react';
 import { 
   checkForDonationEligibilityNotification, 
@@ -49,6 +50,8 @@ const DonorDashboard = () => {
   const [isQuestionnaireOpen, setIsQuestionnaireOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [selectedDonationId, setSelectedDonationId] = useState<string | null>(null);
+  const [isSlotBookingOpen, setIsSlotBookingOpen] = useState(false);
   
   useEffect(() => {
     if (user) {
@@ -112,6 +115,21 @@ const DonorDashboard = () => {
         n.id === notificationId ? { ...n, read: true } : n
       )
     );
+  };
+
+  const handleBookSlot = (donationId: string) => {
+    setSelectedDonationId(donationId);
+    setIsSlotBookingOpen(true);
+  };
+
+  const handleSlotBookingClose = () => {
+    setIsSlotBookingOpen(false);
+    setSelectedDonationId(null);
+    // Refresh donation history to reflect changes
+    if (user) {
+      const donations = getDonationOffersByDonorId(user.id);
+      setDonationHistory(donations);
+    }
   };
 
   const unreadNotifications = notifications.filter(n => !n.read).length;
@@ -210,7 +228,10 @@ const DonorDashboard = () => {
           <TabsContent value="donation-history" className="space-y-4">
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold mb-4">Your Donation History</h2>
-              <DonationsTable donations={donationHistory} />
+              <DonationsTable 
+                donations={donationHistory} 
+                onBookSlot={handleBookSlot}
+              />
             </div>
           </TabsContent>
           
@@ -353,6 +374,15 @@ const DonorDashboard = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      {/* Slot Booking Dialog */}
+      {selectedDonationId && (
+        <DonationSlotBooking
+          isOpen={isSlotBookingOpen}
+          onClose={handleSlotBookingClose}
+          donationId={selectedDonationId}
+        />
+      )}
     </Layout>
   );
 };
