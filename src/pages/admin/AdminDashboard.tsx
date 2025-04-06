@@ -99,8 +99,8 @@ const AdminDashboard = () => {
         );
         toast.success(`Donation offer ${status} successfully`);
         
-        // Update blood stock if approved
-        if (status === 'approve') {
+        // Update blood stock if approved - FIX: Changed 'approve' to 'approved' to match the status type
+        if (status === 'approved') {
           setBloodStock(getBloodStock());
         }
       }
