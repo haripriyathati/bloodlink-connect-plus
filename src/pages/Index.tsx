@@ -59,7 +59,11 @@ const Index = () => {
                     </Button>
                   </Link>
                   <Link to="/login">
-                    <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                    <Button 
+                      size="lg" 
+                      variant="outline" 
+                      className="border-white text-white hover:bg-white hover:text-bloodred transition-all duration-300 shadow-md"
+                    >
                       Sign In
                     </Button>
                   </Link>
@@ -69,7 +73,7 @@ const Index = () => {
           </div>
           <div className="md:w-1/2 flex justify-center">
             <img 
-              src="https://images.unsplash.com/photo-1500673922987-e212871fec22?ixlib=rb-4.0.3&auto=format&fit=crop&w=1760&q=80" 
+              src="https://thalassaemia.org.cy/wp-content/uploads/2024/06/blooddonation.vk_.png" 
               alt="Blood Donation" 
               className="max-w-full h-auto rounded-lg shadow-lg"
               style={{ maxHeight: '400px' }}
@@ -201,7 +205,11 @@ const Index = () => {
                   </Button>
                 </Link>
                 <Link to="/login">
-                  <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="border-white text-white hover:bg-white hover:text-bloodred transition-all duration-300 shadow-md"
+                  >
                     Sign In
                   </Button>
                 </Link>
